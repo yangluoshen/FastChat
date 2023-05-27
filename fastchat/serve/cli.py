@@ -169,6 +169,7 @@ def main(args):
             args.repetition_penalty,
             args.max_new_tokens,
             chatio,
+            args.wbits,
             args.debug,
         )
     except KeyboardInterrupt:

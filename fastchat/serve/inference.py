@@ -256,11 +256,19 @@ def chat_loop(
     repetition_penalty: float,
     max_new_tokens: int,
     chatio: ChatIO,
+    wbits: int,
     debug: bool,
 ):
     # Model
     model, tokenizer = load_model(
-        model_path, device, num_gpus, max_gpu_memory, load_8bit, cpu_offloading, debug
+        model_path,
+        device,
+        num_gpus,
+        max_gpu_memory,
+        load_8bit,
+        cpu_offloading,
+        wbits,
+        debug,
     )
     is_chatglm = "chatglm" in str(type(model)).lower()
     is_fastchat_t5 = "t5" in str(type(model)).lower()

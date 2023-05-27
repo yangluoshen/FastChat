@@ -25,3 +25,6 @@ output
 
 # Build
 build
+
+/models
+/repositories

@@ -99,6 +99,7 @@ def load_model(
     max_gpu_memory: Optional[str] = None,
     load_8bit: bool = False,
     cpu_offloading: bool = False,
+    wbits: int = 16,
     debug: bool = False,
 ):
     """Load a model from Hugging Face."""
@@ -152,6 +153,16 @@ def load_model(
             return load_compress_model(
                 model_path=model_path, device=device, torch_dtype=kwargs["torch_dtype"]
             )
+    elif wbits < 16:
+        from fastchat.model.load_gptq_model import load_quantized
+
+        print("Loading GPTQ quantized model...")
+
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
+        model = load_quantized(model_path)
+
+        model.to(device)
+        return model, tokenizer
 
     # Load model
     adapter = get_model_adapter(model_path)
@@ -204,6 +215,30 @@ def add_model_args(parser):
         "--cpu-offloading",
         action="store_true",
         help="Only when using 8-bit quantization: Offload excess weights to the CPU that don't fit on the GPU",
+    )
+    parser.add_argument(
+        "--load-gptq",
+        type=str,
+        default="",
+        help="Load quantized model. The path to the local GPTQ checkpoint.",
+    )
+    parser.add_argument(
+        "--wbits",
+        type=int,
+        default=16,
+        choices=[2, 3, 4, 8, 16],
+        help="#bits to use for quantization",
+    )
+    parser.add_argument(
+        "--groupsize",
+        type=int,
+        default=-1,
+        help="Groupsize to use for quantization; default uses full row.",
+    )
+    parser.add_argument(
+        "--act-order",
+        action="store_true",
+        help="Whether to apply the activation order GPTQ heuristic",
     )
 
 
